@@ -1,1 +1,41 @@
-.vs/
+# ASP.NET
+*.user
+*.vs/
+*.suo
+*.cache
+*.bak
+Thumbs.db
+*.log
+
+# Binaries
+bin/
+obj/
+
+# Packages
+packages/
+*.nupkg
+*.paket.restore.log
+
+# Node.js
+node_modules/
+
+# Debug folder
+Debug/
+
+# Temporary files
+temp/
+tmp/
+*.tmp
+
+# Logs
+logs/
+*.log.txt
+
+# Visual Studio Code files
+.vscode/
+
+# Mac
+.DS_Store
+
+# Build results
+[Bb]uild/
