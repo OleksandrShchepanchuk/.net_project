@@ -26,7 +26,7 @@ namespace Hospital.Controllers
         {
             return await _context.Articles.ToListAsync();
         }
-
+        
         // GET: api/Articles/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Article>> GetArticle(int id)
