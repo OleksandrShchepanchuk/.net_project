@@ -24,14 +24,18 @@ namespace Hospital.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Department>>> GetDepartments()
         {
-            return await _context.Departments.ToListAsync();
+            return await _context.Departments
+                .Include(d => d.Doctors) 
+                .ToListAsync();
         }
 
         // GET: api/Departments/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Department>> GetDepartment(int id)
         {
-            var department = await _context.Departments.FindAsync(id);
+            var department = await _context.Departments
+                .Include(d => d.Doctors) 
+                .FirstOrDefaultAsync(d => d.DepartmentId == id);
 
             if (department == null)
             {
@@ -40,6 +44,7 @@ namespace Hospital.Controllers
 
             return department;
         }
+
 
         // PUT: api/Departments/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754

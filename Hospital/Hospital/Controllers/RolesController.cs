@@ -24,14 +24,18 @@ namespace Hospital.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Role>>> GetRoles()
         {
-            return await _context.Roles.ToListAsync();
+            return await _context.Roles
+                .Include(r => r.Users)
+                .ToListAsync();
         }
 
         // GET: api/Roles/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Role>> GetRole(int id)
         {
-            var role = await _context.Roles.FindAsync(id);
+            var role = await _context.Roles
+                .Include(r => r.Users)
+                .FirstOrDefaultAsync(r => r.RoleId == id);
 
             if (role == null)
             {
