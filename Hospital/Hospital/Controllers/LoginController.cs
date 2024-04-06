@@ -18,9 +18,12 @@ using System.Threading.Tasks;
 public class LoginController :  ControllerBase
 {
     private IConfiguration _config;
-    public LoginController(IConfiguration config)
+    private readonly HospitalContext _dbContext;
+    public LoginController(IConfiguration config, HospitalContext dbContext)
     {
         _config = config;
+        _dbContext = dbContext;
+
     }
 
     [AllowAnonymous]
@@ -47,7 +50,7 @@ public class LoginController :  ControllerBase
         var claimsList = new List<Claim>
         {
             new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
-            new Claim(ClaimTypes.Name, user.Username), // Include Username as a claim
+            new Claim(ClaimTypes.Name, user.Username), 
             new Claim(ClaimTypes.Email, user.Email),
             new Claim(ClaimTypes.Role, rolesString ),
         };
@@ -64,7 +67,7 @@ public class LoginController :  ControllerBase
 
     private User Authenticate(UserLogin userLogin)
     {
-        var currentUser = UserConstants.Users.FirstOrDefault(o => o.Username.ToLower() == userLogin.Username.ToLower() && o.Password == userLogin.Password);
+        var currentUser = _dbContext.Users.FirstOrDefault(o => o.Username.ToLower() == userLogin.Username.ToLower() && o.Password == userLogin.Password);
 
         if (currentUser != null)
         {

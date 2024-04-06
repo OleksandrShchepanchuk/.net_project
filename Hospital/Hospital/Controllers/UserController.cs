@@ -13,6 +13,8 @@ using System.Threading.Tasks;
 namespace Hospital.Controllers;
 
 
+
+
 [Route("api/[controller]")]
 [ApiController]
 public class UserController : ControllerBase
@@ -50,6 +52,7 @@ public class UserController : ControllerBase
     {
         return Ok("Hi, you're on public property");
     }
+  
 
     private User GetCurrentUser()
     {
