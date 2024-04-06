@@ -7,7 +7,7 @@ namespace Hospital.Models
     using System.Linq;
     using System.Threading.Tasks;
     using System.ComponentModel.DataAnnotations;
-    public class Role : IdentityRole<int>
+    public class Role 
     {
         public int RoleId { get; set; }
         public string RoleName { get; set; }

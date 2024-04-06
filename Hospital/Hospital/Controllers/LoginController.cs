@@ -19,6 +19,7 @@ public class LoginController :  ControllerBase
 {
     private IConfiguration _config;
     private readonly HospitalContext _dbContext;
+    
     public LoginController(IConfiguration config, HospitalContext dbContext)
     {
         _config = config;
@@ -30,11 +31,15 @@ public class LoginController :  ControllerBase
     [HttpPost]
     public IActionResult Login([FromBody] UserLogin userLogin)
     {
+        Console.WriteLine("--=-=-==-=-=-=-=-=-=-=-=-=-=");
+        Console.WriteLine(userLogin);
+
         var user = Authenticate(userLogin);
 
         if (user != null)
         {
             var token = Generate(user);
+            
             return Ok(token);
         }
 
@@ -45,14 +50,14 @@ public class LoginController :  ControllerBase
     {
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-        var rolesString = string.Join(",", user.Roles.Select(role => role.RoleName));
+        // var rolesString = string.Join(",", user.Roles.Select(role => role.RoleName));
 
         var claimsList = new List<Claim>
         {
             new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
             new Claim(ClaimTypes.Name, user.Username), 
-            new Claim(ClaimTypes.Email, user.Email),
-            new Claim(ClaimTypes.Role, rolesString ),
+            new Claim(ClaimTypes.Email, user.Email)
+            // new Claim(ClaimTypes.Role, rolesString ),
         };
         var claims =claimsList.ToArray();
 
@@ -67,6 +72,7 @@ public class LoginController :  ControllerBase
 
     private User Authenticate(UserLogin userLogin)
     {
+        Console.WriteLine(userLogin);
         var currentUser = _dbContext.Users.FirstOrDefault(o => o.Username.ToLower() == userLogin.Username.ToLower() && o.Password == userLogin.Password);
 
         if (currentUser != null)

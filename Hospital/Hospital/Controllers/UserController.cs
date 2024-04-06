@@ -37,23 +37,6 @@ public class UserController : ControllerBase
 
         return Ok($"Hi {currentUser.Username}");
     }
-
-    [HttpGet("AdminsAndSellers")]
-    [Authorize(Roles = "Administrator,Seller")]
-    public IActionResult AdminsAndSellersEndpoint()
-    {
-        var currentUser = GetCurrentUser();
-
-        return Ok($"Hi {currentUser.Username}, you are an {currentUser.Roles}");
-    }
-
-    [HttpGet("Public")]
-    public IActionResult Public()
-    {
-        return Ok("Hi, you're on public property");
-    }
-  
-
     private User GetCurrentUser()
     {
         var identity = HttpContext.User.Identity as ClaimsIdentity;

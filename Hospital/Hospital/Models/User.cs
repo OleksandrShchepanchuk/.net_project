@@ -8,12 +8,12 @@ namespace Hospital.Models
     using System.Linq;
     using System.Threading.Tasks;
     using System.ComponentModel.DataAnnotations;
-    public class User:IdentityUser<int>
+    public class User
     {
 
         public int UserId { get; set; }
         
-        [JsonPropertyName("userName")] 
+        // [JsonPropertyName("userName")] 
         public string Username { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }

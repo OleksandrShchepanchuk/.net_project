@@ -51,9 +51,9 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<HospitalContext>(
     o => o.UseNpgsql(builder.Configuration.GetConnectionString("HospitalDB")));
 
-builder.Services.AddIdentity<User, Role>()
-	.AddEntityFrameworkStores<HospitalContext>()
-	.AddDefaultTokenProviders();
+// builder.Services.AddIdentity<User, Role>()
+// 	.AddEntityFrameworkStores<HospitalContext>()
+// 	.AddDefaultTokenProviders();
 var app = builder.Build();
 
 
