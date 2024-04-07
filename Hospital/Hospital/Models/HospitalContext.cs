@@ -31,7 +31,7 @@ namespace Hospital.Models
                     ru =>
                     {
                         ru.HasKey(t => new { t.UserId, t.RoleId });
-                        ru.ToTable("UserRole"); // Specify the name for the junction table
+                        ru.ToTable("UserRole"); 
                     });
             
             modelBuilder.Entity<Wish>()

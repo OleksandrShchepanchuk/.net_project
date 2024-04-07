@@ -31,8 +31,7 @@ public class LoginController :  ControllerBase
     [HttpPost]
     public IActionResult Login([FromBody] UserLogin userLogin)
     {
-        Console.WriteLine("--=-=-==-=-=-=-=-=-=-=-=-=-=");
-        Console.WriteLine(userLogin);
+       
 
         var user = Authenticate(userLogin);
 
