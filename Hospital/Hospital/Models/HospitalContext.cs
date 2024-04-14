@@ -10,6 +10,7 @@ namespace Hospital.Models
     {
         public HospitalContext(DbContextOptions<HospitalContext> options) : base(options)
         {
+            
         }
         public DbSet<User> Users { get; set; }
         public DbSet<Role> Roles { get; set; }
@@ -21,6 +22,18 @@ namespace Hospital.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<User>()
+                .HasMany(u => u.Roles)
+                .WithMany(r => r.Users)
+                .UsingEntity<RoleUser>(
+                    ru => ru.HasOne<Role>().WithMany(),
+                    ru => ru.HasOne<User>().WithMany(),
+                    ru =>
+                    {
+                        ru.HasKey(t => new { t.UserId, t.RoleId });
+                        ru.ToTable("UserRole"); 
+                    });
+            
             modelBuilder.Entity<Wish>()
                 .HasOne(u => u.User)
                 .WithMany(w => w.Wishes)

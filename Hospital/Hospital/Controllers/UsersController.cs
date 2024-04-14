@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Hospital.Models;
 
+
 namespace Hospital.Controllers
 {
     [Route("api/[controller]")]
@@ -24,11 +25,27 @@ namespace Hospital.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
-            return await _context.Users
+            var users = await _context.Users
                 .Include(u => u.Wishes)
                 .Include(u => u.Reviews)
                 .Include(u => u.Roles)
                 .ToListAsync();
+
+            var mappedUsers = users.Select(u => new User
+            {
+                UserId = u.UserId,
+                Username = u.Username,
+                Email = u.Email,
+                Wishes = u.Wishes,
+                Reviews = u.Reviews,
+                Roles = u.Roles.Select(r => new Role 
+                {
+                    RoleId = r.RoleId,
+                    RoleName = r.RoleName
+                }).ToList()
+            });
+
+            return mappedUsers.ToList(); 
         }
 
         // GET: api/Users/5
@@ -83,11 +100,35 @@ namespace Hospital.Controllers
         // POST: api/Users
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<User>> PostUser(User user)
+        public async Task<ActionResult<User>> PostUser([FromBody] UserRegister model)
         {
+            // Check if the username is already in use
+            if (await _context.Users.AnyAsync(u => u.Username == model.Username))
+            {
+                return Conflict("Username already exists.");
+            }
+
+            // Check if the email is already in use
+            if (await _context.Users.AnyAsync(u => u.Email == model.Email))
+            {
+                return Conflict("Email already exists.");
+            }
+            
+            int maxUserId = await _context.Users.MaxAsync(u => (int?)u.UserId) ?? 0;
+            var role = await _context.Roles.FirstOrDefaultAsync(r => r.RoleName == "User");
+            var user = new User
+            {
+                Username = model.Username,
+                Password = model.Password,
+                Email = model.Email,
+                Wishes = new List<Wish>(),
+                Reviews = new List<Review>(),
+                Roles = new List<Role>(),
+                UserId = maxUserId + 1
+            };
+            user.Roles.Add(role);
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
-
             return CreatedAtAction("GetUser", new { id = user.UserId }, user);
         }
 
