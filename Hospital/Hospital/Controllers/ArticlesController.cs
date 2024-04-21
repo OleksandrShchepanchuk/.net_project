@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Hospital.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Hospital.Models;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Hospital.Controllers
 {
@@ -14,22 +12,25 @@ namespace Hospital.Controllers
     public class ArticlesController : ControllerBase
     {
         private readonly HospitalContext _context;
+        private readonly IMapper _mapper;
 
-        public ArticlesController(HospitalContext context)
+        public ArticlesController(HospitalContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         // GET: api/Articles
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Article>>> GetArticles()
+        public async Task<ActionResult<IEnumerable<ArticleDTO>>> GetArticles()
         {
-            return await _context.Articles.ToListAsync();
+            var articles = await _context.Articles.ToListAsync();
+            return _mapper.Map<List<ArticleDTO>>(articles);
         }
-        
+
         // GET: api/Articles/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Article>> GetArticle(int id)
+        public async Task<ActionResult<ArticleDTO>> GetArticle(int id)
         {
             var article = await _context.Articles.FindAsync(id);
 
@@ -38,20 +39,28 @@ namespace Hospital.Controllers
                 return NotFound();
             }
 
-            return article;
+            return _mapper.Map<ArticleDTO>(article);
         }
 
         // PUT: api/Articles/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutArticle(int id, Article article)
+        public async Task<IActionResult> PutArticle(int id, ArticleDTO articleDTO)
         {
-            if (id != article.ArticleId)
+
+            //  NEED FIX
+
+            //if (id != articleDTO.ArticleId)
+            //{
+            //    return BadRequest();
+            //}
+
+            var article = await _context.Articles.FindAsync(id);
+            if (article == null)
             {
-                return BadRequest();
+                return NotFound();
             }
 
-            _context.Entry(article).State = EntityState.Modified;
+            _mapper.Map(articleDTO, article);
 
             try
             {
@@ -73,14 +82,14 @@ namespace Hospital.Controllers
         }
 
         // POST: api/Articles
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Article>> PostArticle(Article article)
+        public async Task<ActionResult<ArticleDTO>> PostArticle(ArticleDTO articleDTO)
         {
+            var article = _mapper.Map<Article>(articleDTO);
             _context.Articles.Add(article);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetArticle", new { id = article.ArticleId }, article);
+            return CreatedAtAction("GetArticle", new { id = article.ArticleId }, articleDTO);
         }
 
         // DELETE: api/Articles/5

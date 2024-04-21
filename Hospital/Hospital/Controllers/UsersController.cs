@@ -1,12 +1,10 @@
-﻿using System;
+﻿using AutoMapper;
+using Hospital.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Hospital.Models;
-
 
 namespace Hospital.Controllers
 {
@@ -15,15 +13,17 @@ namespace Hospital.Controllers
     public class UsersController : ControllerBase
     {
         private readonly HospitalContext _context;
+        private readonly IMapper _mapper;
 
-        public UsersController(HospitalContext context)
+        public UsersController(HospitalContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         // GET: api/Users
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<User>>> GetUsers()
+        public async Task<ActionResult<IEnumerable<UserDTO>>> GetUsers()
         {
             var users = await _context.Users
                 .Include(u => u.Wishes)
@@ -31,26 +31,12 @@ namespace Hospital.Controllers
                 .Include(u => u.Roles)
                 .ToListAsync();
 
-            var mappedUsers = users.Select(u => new User
-            {
-                UserId = u.UserId,
-                Username = u.Username,
-                Email = u.Email,
-                Wishes = u.Wishes,
-                Reviews = u.Reviews,
-                Roles = u.Roles.Select(r => new Role 
-                {
-                    RoleId = r.RoleId,
-                    RoleName = r.RoleName
-                }).ToList()
-            });
-
-            return mappedUsers.ToList(); 
+            return _mapper.Map<List<UserDTO>>(users);
         }
 
         // GET: api/Users/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<User>> GetUser(int id)
+        public async Task<ActionResult<UserDTO>> GetUser(int id)
         {
             var user = await _context.Users
                 .Include(u => u.Wishes)
@@ -63,20 +49,25 @@ namespace Hospital.Controllers
                 return NotFound();
             }
 
-            return user;
+            return _mapper.Map<UserDTO>(user);
         }
 
         // PUT: api/Users/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutUser(int id, User user)
+        public async Task<IActionResult> PutUser(int id, UserDTO userDTO)
         {
-            if (id != user.UserId)
+            //if (id != userDTO.UserId)
+            //{
+            //    return BadRequest();
+            //}
+
+            var user = await _context.Users.FindAsync(id);
+            if (user == null)
             {
-                return BadRequest();
+                return NotFound();
             }
 
-            _context.Entry(user).State = EntityState.Modified;
+            _mapper.Map(userDTO, user);
 
             try
             {
@@ -98,9 +89,8 @@ namespace Hospital.Controllers
         }
 
         // POST: api/Users
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<User>> PostUser([FromBody] UserRegister model)
+        public async Task<ActionResult<UserDTO>> PostUser(UserRegister model)
         {
             // Check if the username is already in use
             if (await _context.Users.AnyAsync(u => u.Username == model.Username))
@@ -113,7 +103,7 @@ namespace Hospital.Controllers
             {
                 return Conflict("Email already exists.");
             }
-            
+
             int maxUserId = await _context.Users.MaxAsync(u => (int?)u.UserId) ?? 0;
             var role = await _context.Roles.FirstOrDefaultAsync(r => r.RoleName == "User");
             var user = new User
@@ -129,7 +119,7 @@ namespace Hospital.Controllers
             user.Roles.Add(role);
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
-            return CreatedAtAction("GetUser", new { id = user.UserId }, user);
+            return CreatedAtAction("GetUser", new { id = user.UserId }, _mapper.Map<UserDTO>(user));
         }
 
         // DELETE: api/Users/5
