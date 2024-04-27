@@ -7,9 +7,9 @@
     using System.ComponentModel.DataAnnotations;
     public class WishDTO
     {
-        //public int WishId { get; set; }
+        public int WishId { get; set; }
         public string WishContent { get; set; }
         public int UserId { get; set; }
-        public User User { get; set; }
+        //public User User { get; set; }
     }
 }

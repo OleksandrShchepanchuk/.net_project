@@ -11,15 +11,15 @@ namespace Hospital.Models
     public class UserDTO
     {
 
-        //public int UserId { get; set; }
+        public int UserId { get; set; }
 
         // [JsonPropertyName("userName")] 
         public string Username { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
 
-        public ICollection<Role> Roles { get; set; }
-        public ICollection<Wish> Wishes { get; set; }
-        public ICollection<Review> Reviews { get; set; }
+        //public ICollection<Role> Roles { get; set; }
+        //public ICollection<Wish> Wishes { get; set; }
+        //public ICollection<Review> Reviews { get; set; }
     }
 }

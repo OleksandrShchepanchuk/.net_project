@@ -24,7 +24,24 @@ namespace Hospital.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<DoctorDTO>>> GetDoctors()
         {
-            var doctors = await _context.Doctors.ToListAsync();
+            //var doctors = await _context.Doctors.ToListAsync();
+            var doctors = await _context.Doctors
+                .Include(d => d.Reviews)
+                .ToListAsync();
+
+            foreach(var doc in doctors)
+            {
+                if(doc.Reviews.Count!=0)
+                {
+                    doc.Rating= doc.Reviews.Average(d => d.Rating);
+                }
+                else
+                {
+                    //doc.Rating = 4.5;
+                    doc.Rating = 0;
+                }
+            }
+
             return _mapper.Map<List<DoctorDTO>>(doctors);
         }
 
@@ -32,11 +49,22 @@ namespace Hospital.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<DoctorDTO>> GetDoctor(int id)
         {
-            var doctor = await _context.Doctors.FindAsync(id);
+            //var doctor = await _context.Doctors.FindAsync(id);
+            var doctor = await _context.Doctors.Include(d => d.Reviews).FirstOrDefaultAsync(d => d.DoctorId == id);
 
             if (doctor == null)
             {
                 return NotFound();
+            }
+
+            if (doctor.Reviews.Count != 0)
+            {
+                doctor.Rating = doctor.Reviews.Average(d => d.Rating);
+            }
+            else
+            {
+                //doc.Rating = 4.5;
+                doctor.Rating = 0;
             }
 
             return _mapper.Map<DoctorDTO>(doctor);

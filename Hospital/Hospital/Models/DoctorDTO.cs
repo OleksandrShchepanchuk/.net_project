@@ -7,14 +7,14 @@
     using System.ComponentModel.DataAnnotations;
     public class DoctorDTO
     {
-        //public int DoctorId { get; set; }
+        public int DoctorId { get; set; }
         public string Name { get; set; }
         public string Experience { get; set; }
         public string Image { get; set; }
         public string Email { get; set; }
-        public int Rating { get; set; }
+        public double Rating { get; set; }
         public int DepartmentId { get; set; }
-        public Department Department { get; set; }
-        public ICollection<Review> Reviews { get; set; }
+        //public Department Department { get; set; }
+        //public ICollection<Review> Reviews { get; set; }
     }
 }

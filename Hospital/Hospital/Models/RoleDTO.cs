@@ -9,9 +9,9 @@ namespace Hospital.Models
     using System.ComponentModel.DataAnnotations;
     public class RoleDTO
     {
-        //public int RoleId { get; set; }
+        public int RoleId { get; set; }
         public string RoleName { get; set; }
-        public ICollection<User> Users { get; set; }
+        //public ICollection<User> Users { get; set; }
 
     }
 }
