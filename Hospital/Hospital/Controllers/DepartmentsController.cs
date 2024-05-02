@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Hospital.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Hospital.Models;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Hospital.Controllers
 {
@@ -14,27 +12,32 @@ namespace Hospital.Controllers
     public class DepartmentsController : ControllerBase
     {
         private readonly HospitalContext _context;
+        private readonly IMapper _mapper;
 
-        public DepartmentsController(HospitalContext context)
+        public DepartmentsController(HospitalContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         // GET: api/Departments
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Department>>> GetDepartments()
+        public async Task<ActionResult<IEnumerable<DepartmentDTO>>> GetDepartments()
         {
-            return await _context.Departments
-                .Include(d => d.Doctors) 
+            var departments = await _context.Departments
+                .Include(d => d.Doctors)
                 .ToListAsync();
+
+            var departmentDTOs = _mapper.Map<List<DepartmentDTO>>(departments);
+            return departmentDTOs;
         }
 
         // GET: api/Departments/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Department>> GetDepartment(int id)
+        public async Task<ActionResult<DepartmentDTO>> GetDepartment(int id)
         {
             var department = await _context.Departments
-                .Include(d => d.Doctors) 
+                .Include(d => d.Doctors)
                 .FirstOrDefaultAsync(d => d.DepartmentId == id);
 
             if (department == null)
@@ -42,21 +45,26 @@ namespace Hospital.Controllers
                 return NotFound();
             }
 
-            return department;
+            var departmentDTO = _mapper.Map<DepartmentDTO>(department);
+            return departmentDTO;
         }
 
-
         // PUT: api/Departments/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutDepartment(int id, Department department)
+        public async Task<IActionResult> PutDepartment(int id, DepartmentDTO departmentDTO)
         {
-            if (id != department.DepartmentId)
+            //if (id != departmentDTO.DepartmentId)
+            //{
+            //    return BadRequest();
+            //}
+
+            var department = await _context.Departments.FindAsync(id);
+            if (department == null)
             {
-                return BadRequest();
+                return NotFound();
             }
 
-            _context.Entry(department).State = EntityState.Modified;
+            _mapper.Map(departmentDTO, department);
 
             try
             {
@@ -78,14 +86,14 @@ namespace Hospital.Controllers
         }
 
         // POST: api/Departments
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Department>> PostDepartment(Department department)
+        public async Task<ActionResult<DepartmentDTO>> PostDepartment(DepartmentDTO departmentDTO)
         {
+            var department = _mapper.Map<Department>(departmentDTO);
             _context.Departments.Add(department);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetDepartment", new { id = department.DepartmentId }, department);
+            return CreatedAtAction("GetDepartment", new { id = department.DepartmentId }, departmentDTO);
         }
 
         // DELETE: api/Departments/5

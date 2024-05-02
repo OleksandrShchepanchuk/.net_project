@@ -1,11 +1,10 @@
-﻿using System;
+﻿using AutoMapper;
+using Hospital.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Hospital.Models;
 
 namespace Hospital.Controllers
 {
@@ -14,22 +13,25 @@ namespace Hospital.Controllers
     public class WishesController : ControllerBase
     {
         private readonly HospitalContext _context;
+        private readonly IMapper _mapper;
 
-        public WishesController(HospitalContext context)
+        public WishesController(HospitalContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         // GET: api/Wishes
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Wish>>> GetWishes()
+        public async Task<ActionResult<IEnumerable<WishDTO>>> GetWishes()
         {
-            return await _context.Wishes.ToListAsync();
+            var wishes = await _context.Wishes.ToListAsync();
+            return _mapper.Map<List<WishDTO>>(wishes);
         }
 
         // GET: api/Wishes/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Wish>> GetWish(int id)
+        public async Task<ActionResult<WishDTO>> GetWish(int id)
         {
             var wish = await _context.Wishes.FindAsync(id);
 
@@ -38,20 +40,25 @@ namespace Hospital.Controllers
                 return NotFound();
             }
 
-            return wish;
+            return _mapper.Map<WishDTO>(wish);
         }
 
         // PUT: api/Wishes/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutWish(int id, Wish wish)
+        public async Task<IActionResult> PutWish(int id, WishDTO wishDTO)
         {
-            if (id != wish.WishId)
+            //if (id != wishDTO.WishId)
+            //{
+            //    return BadRequest();
+            //}
+
+            var wish = await _context.Wishes.FindAsync(id);
+            if (wish == null)
             {
-                return BadRequest();
+                return NotFound();
             }
 
-            _context.Entry(wish).State = EntityState.Modified;
+            _mapper.Map(wishDTO, wish);
 
             try
             {
@@ -73,14 +80,14 @@ namespace Hospital.Controllers
         }
 
         // POST: api/Wishes
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Wish>> PostWish(Wish wish)
+        public async Task<ActionResult<WishDTO>> PostWish(WishDTO wishDTO)
         {
+            var wish = _mapper.Map<Wish>(wishDTO);
             _context.Wishes.Add(wish);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetWish", new { id = wish.WishId }, wish);
+            return CreatedAtAction("GetWish", new { id = wish.WishId }, _mapper.Map<WishDTO>(wish));
         }
 
         // DELETE: api/Wishes/5

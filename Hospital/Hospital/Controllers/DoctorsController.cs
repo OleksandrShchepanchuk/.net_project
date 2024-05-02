@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Hospital.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Hospital.Models;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Hospital.Controllers
 {
@@ -14,44 +12,80 @@ namespace Hospital.Controllers
     public class DoctorsController : ControllerBase
     {
         private readonly HospitalContext _context;
+        private readonly IMapper _mapper;
 
-        public DoctorsController(HospitalContext context)
+        public DoctorsController(HospitalContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         // GET: api/Doctors
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Doctor>>> GetDoctors()
+        public async Task<ActionResult<IEnumerable<DoctorDTO>>> GetDoctors()
         {
-            return await _context.Doctors.ToListAsync();
+            //var doctors = await _context.Doctors.ToListAsync();
+            var doctors = await _context.Doctors
+                .Include(d => d.Reviews)
+                .ToListAsync();
+
+            foreach(var doc in doctors)
+            {
+                if(doc.Reviews.Count!=0)
+                {
+                    doc.Rating= doc.Reviews.Average(d => d.Rating);
+                }
+                else
+                {
+                    //doc.Rating = 4.5;
+                    doc.Rating = 0;
+                }
+            }
+
+            return _mapper.Map<List<DoctorDTO>>(doctors);
         }
 
         // GET: api/Doctors/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Doctor>> GetDoctor(int id)
+        public async Task<ActionResult<DoctorDTO>> GetDoctor(int id)
         {
-            var doctor = await _context.Doctors.FindAsync(id);
+            //var doctor = await _context.Doctors.FindAsync(id);
+            var doctor = await _context.Doctors.Include(d => d.Reviews).FirstOrDefaultAsync(d => d.DoctorId == id);
 
             if (doctor == null)
             {
                 return NotFound();
             }
 
-            return doctor;
+            if (doctor.Reviews.Count != 0)
+            {
+                doctor.Rating = doctor.Reviews.Average(d => d.Rating);
+            }
+            else
+            {
+                //doc.Rating = 4.5;
+                doctor.Rating = 0;
+            }
+
+            return _mapper.Map<DoctorDTO>(doctor);
         }
 
         // PUT: api/Doctors/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutDoctor(int id, Doctor doctor)
+        public async Task<IActionResult> PutDoctor(int id, DoctorDTO doctorDTO)
         {
-            if (id != doctor.DoctorId)
+            //if (id != doctorDTO.DoctorId)
+            //{
+            //    return BadRequest();
+            //}
+
+            var doctor = await _context.Doctors.FindAsync(id);
+            if (doctor == null)
             {
-                return BadRequest();
+                return NotFound();
             }
 
-            _context.Entry(doctor).State = EntityState.Modified;
+            _mapper.Map(doctorDTO, doctor);
 
             try
             {
@@ -73,14 +107,14 @@ namespace Hospital.Controllers
         }
 
         // POST: api/Doctors
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Doctor>> PostDoctor(Doctor doctor)
+        public async Task<ActionResult<DoctorDTO>> PostDoctor(DoctorDTO doctorDTO)
         {
+            var doctor = _mapper.Map<Doctor>(doctorDTO);
             _context.Doctors.Add(doctor);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetDoctor", new { id = doctor.DoctorId }, doctor);
+            return CreatedAtAction("GetDoctor", new { id = doctor.DoctorId }, doctorDTO);
         }
 
         // DELETE: api/Doctors/5

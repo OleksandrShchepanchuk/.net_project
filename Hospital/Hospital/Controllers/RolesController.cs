@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Hospital.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Hospital.Models;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Hospital.Controllers
 {
@@ -14,24 +12,27 @@ namespace Hospital.Controllers
     public class RolesController : ControllerBase
     {
         private readonly HospitalContext _context;
+        private readonly IMapper _mapper;
 
-        public RolesController(HospitalContext context)
+        public RolesController(HospitalContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         // GET: api/Roles
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Role>>> GetRoles()
+        public async Task<ActionResult<IEnumerable<RoleDTO>>> GetRoles()
         {
-            return await _context.Roles
+            var roles = await _context.Roles
                 .Include(r => r.Users)
                 .ToListAsync();
+            return _mapper.Map<List<RoleDTO>>(roles);
         }
 
         // GET: api/Roles/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Role>> GetRole(int id)
+        public async Task<ActionResult<RoleDTO>> GetRole(int id)
         {
             var role = await _context.Roles
                 .Include(r => r.Users)
@@ -42,20 +43,25 @@ namespace Hospital.Controllers
                 return NotFound();
             }
 
-            return role;
+            return _mapper.Map<RoleDTO>(role);
         }
 
         // PUT: api/Roles/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutRole(int id, Role role)
+        public async Task<IActionResult> PutRole(int id, RoleDTO roleDTO)
         {
-            if (id != role.RoleId)
+            //if (id != roleDTO.RoleId)
+            //{
+            //    return BadRequest();
+            //}
+
+            var role = await _context.Roles.FindAsync(id);
+            if (role == null)
             {
-                return BadRequest();
+                return NotFound();
             }
 
-            _context.Entry(role).State = EntityState.Modified;
+            _mapper.Map(roleDTO, role);
 
             try
             {
@@ -77,14 +83,14 @@ namespace Hospital.Controllers
         }
 
         // POST: api/Roles
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Role>> PostRole(Role role)
+        public async Task<ActionResult<RoleDTO>> PostRole(RoleDTO roleDTO)
         {
+            var role = _mapper.Map<Role>(roleDTO);
             _context.Roles.Add(role);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetRole", new { id = role.RoleId }, role);
+            return CreatedAtAction("GetRole", new { id = role.RoleId }, roleDTO);
         }
 
         // DELETE: api/Roles/5

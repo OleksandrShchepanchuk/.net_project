@@ -43,6 +43,10 @@ namespace Hospital.Models
                 .HasOne(u => u.User)
                 .WithMany(r => r.Reviews)
                 .HasForeignKey(u => u.UserId);
+            modelBuilder.Entity<Review>()
+                .HasOne(d => d.Doctor)
+                .WithMany(r => r.Reviews)
+    .           HasForeignKey(d => d.DoctorId);
 
             modelBuilder.Entity<Doctor>()
                 .HasOne(d => d.Department)
