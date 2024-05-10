@@ -27,6 +27,9 @@ namespace Hospital
 
             CreateMap<Wish, WishDTO>();
             CreateMap<WishDTO, Wish>();
+
+            CreateMap<Video, VideoDTO>();
+            CreateMap<VideoDTO, Video>();
         }
     }
 }
