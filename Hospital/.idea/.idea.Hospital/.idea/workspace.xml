@@ -89,7 +89,8 @@
       <workItem from="1712505108764" duration="2766000" />
       <workItem from="1714169969575" duration="3004000" />
       <workItem from="1715293072311" duration="1059000" />
-      <workItem from="1715353716433" duration="881000" />
+      <workItem from="1715353716433" duration="10438000" />
+      <workItem from="1715540797382" duration="2685000" />
     </task>
     <servers />
   </component>
@@ -98,24 +99,5 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/Hospital/Controllers/UsersController.cs</url>
-          <line>128</line>
-          <properties documentPath="$PROJECT_DIR$/Hospital/Controllers/UsersController.cs" initialLine="98" containingFunctionPresentation="Method 'PostUser'">
-            <startOffsets>
-              <option value="3877" />
-            </startOffsets>
-            <endOffsets>
-              <option value="3898" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="2" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>
