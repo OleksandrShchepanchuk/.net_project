@@ -11,6 +11,8 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Identity;
 //using AutoMapper;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http.Features;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -78,6 +80,18 @@ app.UseCors("AllowAll");
 
 
 app.UseHttpsRedirection();
+
+////  Directory for images
+var uploadDirectory = Path.Combine(app.Environment.ContentRootPath, "uploads");
+Directory.CreateDirectory(uploadDirectory);
+
+app.UseFileServer(new FileServerOptions
+{
+    FileProvider = new PhysicalFileProvider(uploadDirectory),
+    RequestPath = "/uploads",
+    EnableDirectoryBrowsing = true
+});
+/////????
 
 app.UseRouting();
 
