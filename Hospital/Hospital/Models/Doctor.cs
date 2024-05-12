@@ -12,6 +12,7 @@
         public string Experience { get; set; }
         public string Image { get; set; }
         public string Email { get; set; }
+        public string Speciality { get; set; }
         public double Rating { get; set; }
         public int DepartmentId { get; set; } 
         public Department Department { get; set; }

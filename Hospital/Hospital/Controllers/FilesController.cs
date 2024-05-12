@@ -21,14 +21,18 @@ namespace Hospital.Controllers
                 return BadRequest("No file was uploaded.");
 
             var uploadDirectory = Path.Combine(_env.ContentRootPath, "uploads");
-            var filePath = Path.Combine(uploadDirectory, file.FileName);
+            var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+            var filePath = Path.Combine(uploadDirectory, fileName);
 
             using (var fileStream = new FileStream(filePath, FileMode.Create))
             {
                 await file.CopyToAsync(fileStream);
             }
 
-            return Ok($"File '{file.FileName}' uploaded successfully.");
+            var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}";
+            var fileUrl = $"{baseUrl}/uploads/{fileName}";
+
+            return Ok(new { url = fileUrl });
         }
     }
 }
