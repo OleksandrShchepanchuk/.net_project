@@ -83,14 +83,21 @@ namespace Hospital.Controllers
 
         // POST: api/Articles
         [HttpPost]
-        public async Task<ActionResult<ArticleDTO>> PostArticle(ArticleDTO articleDTO)
+        public async Task<ActionResult<ArticleDTO>> PostArticle([FromBody] ArticleDTO articleDTO)
         {
+            
             var article = _mapper.Map<Article>(articleDTO);
+            
+            article.Timestamp = DateTime.UtcNow;
+
             _context.Articles.Add(article);
             await _context.SaveChangesAsync();
+            
+            var articleToReturn = _mapper.Map<ArticleDTO>(article);
 
-            return CreatedAtAction("GetArticle", new { id = article.ArticleId }, articleDTO);
+            return CreatedAtAction(nameof(GetArticle), new { id = article.ArticleId }, articleToReturn);
         }
+
 
         // DELETE: api/Articles/5
         [HttpDelete("{id}")]

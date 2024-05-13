@@ -10,7 +10,6 @@
         public int ArticleId { get; set; }
         public string Title { get; set; }
         public string Content { get; set; }
-        public string Image { get; set; }
-        public DateTime Timestamp { get; set; }
+        public string? Image { get; set; }
     }
 }
