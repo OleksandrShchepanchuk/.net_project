@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 
 namespace Hospital.Controllers
 {
@@ -87,6 +88,12 @@ namespace Hospital.Controllers
 
             return NoContent();
         }
+        
+        public static bool validateEmail (string email){
+            string pattern = @"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$";
+            Regex regex = new Regex(pattern);
+            return regex.IsMatch(email);
+        }
 
         // POST: api/Users
         [HttpPost]
@@ -103,6 +110,12 @@ namespace Hospital.Controllers
             {
                 return Conflict("Email already exists.");
             }
+            
+            if (!validateEmail(model.Email))
+            {
+                return Conflict("Incorrect email");
+            }
+            
 
             int maxUserId = await _context.Users.MaxAsync(u => (int?)u.UserId) ?? 0;
             var role = await _context.Roles.FirstOrDefaultAsync(r => r.RoleName == "User");
